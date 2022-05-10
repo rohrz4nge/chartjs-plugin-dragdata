@@ -13,8 +13,13 @@ function getSafe(func) {
   }
 }
 
-const getElement = (e, chartInstance, callback) => {  
-  element = chartInstance.getElementsAtEventForMode(e, 'nearest', { intersect: true }, false)[0]
+const getElement = (e, chartInstance, callback, initialCall= true) => {
+  if (initialCall) element = chartInstance.getElementsAtEventForMode(e, 'nearest', { intersect: false }, false)[0]
+  else {
+    const elems = chartInstance.getElementsAtEventForMode(e, 'index', { intersect: false }, false)
+    const nearestFromDataset = elems.filter((elem) => elem.datasetIndex === element.datasetIndex);
+    if (nearestFromDataset.length > 0) element = nearestFromDataset[0]
+  }
   type = chartInstance.config.type
 
   if (element) {    
@@ -165,6 +170,7 @@ function calcPosition(e, chartInstance, data) {
 }
 
 const updateData = (e, chartInstance, pluginOptions, callback) => {
+  getElement(e, chartInstance, null, false);
   if (element) {
     curDatasetIndex = element.datasetIndex
     curIndex = element.index
